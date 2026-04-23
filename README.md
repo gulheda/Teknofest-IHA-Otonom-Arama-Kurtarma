@@ -190,6 +190,6 @@ target_lon = iha_lon + degrees(dx_rotated / (R * cos(radians(iha_lat))))
 
 ---
 
-## 👥 Teknofest 2025
+## 👥 Teknofest 2026
 
 Bu proje Teknofest İHA yarışması kapsamında geliştirilmiştir.
