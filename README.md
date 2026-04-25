@@ -101,6 +101,8 @@ sim_vehicle.py -v ArduPlane \
   --add-param-file=$HOME/SITL_Models/Gazebo/config/alti_transition_quad.param \
   --console --map -I 0 --sysid 1
 ```
+### Her iki terminalde de : 
+param set ARMING_SKIPCHK 1
 
 ### 4. VTOL İHA Kalkışı (MAVProxy Console)
 ```
@@ -109,6 +111,14 @@ arm throttle force
 takeoff 50
 ```
 
+### İnsan eklemek 
+```
+gz service -s /world/runway/create \
+  --reqtype gz.msgs.EntityFactory \
+  --reptype gz.msgs.Boolean \
+  --timeout 1000 \
+  --req 'sdf_filename: "https://fuel.gazebosim.org/1.0/OpenRobotics/models/Standing%20person" pose: {position: {x: 50, y: 50, z: 0}}'
+```
 ### 5. Otonom Görev Scripti
 ```bash
 python3 otonom_gorev.py
