@@ -1,4 +1,3 @@
-cat > ~/otonom_gorev.py << 'EOF'
 import os
 os.environ['PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION'] = 'python'
 
@@ -330,5 +329,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-EOF
-echo "Hazir! python3 ~/otonom_gorev.py ile calistirin"
