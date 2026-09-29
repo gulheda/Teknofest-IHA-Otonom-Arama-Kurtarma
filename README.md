@@ -1,205 +1,115 @@
-# 🚁 Teknofest İHA Otonom Arama-Kurtarma Sistemi
+# TEKNOFEST İHA Otonom Arama-Kurtarma Çalışması
 
-Dağlık alanlarda kaybolan bireylerin tespiti ve ilk yardım paketinin ulaştırılması için geliştirilmiş iki araçlı otonom İHA sistemi.
+Bu depo, ekibimizin TEKNOFEST kapsamında geliştirdiği önceki İHA çalışmalarının teknik çıktılarından bir bölümünü içerir. Çalışmanın amacı, geniş bir alanı tarayan bir hava aracı ile hedef bölgeye otonom olarak ilerleyen multikopteri aynı arama-kurtarma senaryosu içerisinde değerlendirmekti.
 
----
+Bu çalışma, güncel bitirme projemiz olan GPS/GNSS erişiminin bulunmadığı ortamlarda tam otonom keşif ve navigasyon çalışmasından ayrıdır. Repo, daha önce İHA sistemleri, otonom uçuş, görüntü işleme, görev yazılımı ve yer kontrol arayüzü üzerinde edindiğimiz uygulamalı deneyimi göstermek amacıyla korunmaktadır.
 
-## 📌 Sistem Mimarisi
+## Gerçekleştirilen çalışmalar
 
-```
-VTOL İHA (Sabit Kanat)
-  → Geniş alan grid taraması
-  → YOLOv8 ile kazazede tespiti
-  → TF03-180 LiDAR ile irtifa ölçümü
-  → GPS + LiDAR + Kamera FOV → Koordinat hesaplama
-  → Koordinatı Drone'a MAVLink ile iletme
+Ana İHA'nın mekanik üretimi ve elektronik sistem entegrasyonu gerçekleştirildi. Ancak ana İHA'nın motorunda meydana gelen teknik arıza nedeniyle fiziksel uçuş testi tamamlanamadı.
 
-Multikopter Drone
-  → Koordinatı al
-  → Otonom uçuş (GUIDED mod)
-  → Hover + Servo ile yük bırakma
-  → RTL (Eve dönüş)
-```
+Otonom uçuş testleri projenin multikopter platformu üzerinde gerçekleştirildi. Multikopter üzerinde otonom kalkış, hedef noktaya ilerleme, yön/konum kontrolü ve görev senaryoları fiziksel olarak test edildi.
 
----
+Yazılım ve simülasyon tarafında ise aşağıdaki konular üzerinde çalışıldı:
 
-## 🛠️ Kullanılan Teknolojiler
+- ArduPilot ve SITL tabanlı uçuş simülasyonu
+- Gazebo Harmonic ile iki araçlı görev senaryosu
+- MAVSDK/Python ile otonom görev kontrolü
+- YOLOv8 tabanlı insan tespiti
+- LiDAR irtifa verisinin işlenmesi
+- Kamera piksel koordinatından GPS hedef koordinatı hesaplama
+- Hedefe yönelme ve RTL görev akışları
+- C# / Windows Forms tabanlı yer kontrol arayüzü
+- MAVLink telemetrisi üzerinden konum, irtifa, hız, tutum ve batarya verilerinin görselleştirilmesi
 
-| Teknoloji | Görev |
-|-----------|-------|
-| **ArduPilot SITL** | Uçuş kontrol simülasyonu |
-| **Gazebo Harmonic** | 3D fizik simülasyonu |
-| **MAVSDK Python** | İHA/Drone kontrolü |
-| **YOLOv8x** | Gerçek zamanlı kişi tespiti |
-| **TF03-180 LiDAR** | Yerden yükseklik ölçümü |
-| **MAVLink** | İki araç arası haberleşme |
-| **OpenCV** | Görüntü işleme |
+## Sistem yaklaşımı
 
----
+Simülasyon senaryosunda VTOL platformun alan taraması yapması, kamera görüntüsünden insan tespiti gerçekleştirmesi ve hedef konumunu hesaplaması; multikopterin ise belirlenen hedefe otonom olarak ilerlemesi üzerine çalışılmıştır.
 
-## 🔧 Donanım
+```text
+VTOL / arama platformu
+  -> alan tarama
+  -> görüntü alma
+  -> YOLOv8 ile kişi tespiti
+  -> LiDAR + konum + kamera geometrisi ile hedef konumu
 
-### VTOL İHA
-- Pixhawk Orange Cube+ (Uçuş Kontrol)
-- Raspberry Pi 5 + AI Hat+ 26T (Görev Bilgisayarı)
-- Here 3 GNSS (RTK, 2.5cm hassasiyet)
-- Raspberry Pi HQ Kamera (8mm, Global Shutter)
-- TF03-180 LiDAR Mesafe Ölçer
-
-### Multikopter Drone
-- Pixhawk 2.4.8 (Uçuş Kontrol)
-- Neo-M8N GNSS
-- TF03-180 LiDAR
-- MG90S Servo Motor (Yük Bırakma)
-
----
-
-## 💻 Kurulum
-
-### Gereksinimler
-```bash
-# ArduPilot SITL
-git clone https://github.com/ArduPilot/ardupilot.git
-cd ardupilot && git submodule update --init --recursive
-
-# Gazebo Harmonic
-sudo apt install gz-harmonic
-
-# ardupilot_gazebo plugin
-git clone https://github.com/ArduPilot/ardupilot_gazebo.git
-
-# Python bağımlılıkları
-pip install mavsdk ultralytics opencv-python numpy
+Multikopter
+  -> otonom kalkış
+  -> hedef noktaya ilerleme
+  -> görev bölgesinde konumlanma
+  -> RTL / görev sonlandırma
 ```
 
-### Ortam Değişkenleri
-```bash
-export GZ_SIM_SYSTEM_PLUGIN_PATH=$HOME/ardupilot_gazebo/build:$GZ_SIM_SYSTEM_PLUGIN_PATH
-export GZ_SIM_RESOURCE_PATH=$HOME/ardupilot_gazebo/models:$HOME/SITL_Models/Gazebo/models:$GZ_SIM_RESOURCE_PATH
-```
+## Proje durumu
 
----
+| Bileşen | Durum |
+| --- | --- |
+| Ana İHA mekanik üretimi | Tamamlandı |
+| Ana İHA elektronik entegrasyonu | Tamamlandı |
+| Ana İHA fiziksel uçuşu | Motor arızası nedeniyle tamamlanamadı |
+| Multikopter otonom uçuş testleri | Fiziksel olarak gerçekleştirildi |
+| ArduPilot / Gazebo simülasyonu | Gerçekleştirildi |
+| YOLO tabanlı hedef tespiti | Yazılım ve simülasyon çalışmaları gerçekleştirildi |
+| Piksel -> GPS hedef hesabı | Prototip geliştirildi |
+| Yer kontrol arayüzü | Geliştirildi |
 
-## 🚀 Simülasyon Başlatma
+## Otonom uçuş videosu
 
-### 1. Gazebo
-```bash
-__NV_PRIME_RENDER_OFFLOAD=1 __GLX_VENDOR_LIBRARY_NAME=nvidia gz sim -v4 -r ~/SITL_Models/Gazebo/worlds/alti_transition_runway.sdf
-```
+Multikopter üzerinde gerçekleştirilen otonom uçuş çalışmalarından kısa bir örnek:
 
-### 2. ArduCopter SITL (Drone)
-```bash
-cd ~/ardupilot/ArduCopter
-sim_vehicle.py -v ArduCopter -f gazebo-iris --model JSON --console --map -I 1 --sysid 2
-```
+https://youtube.com/shorts/KACo_1uFrfQ
 
-### 3. ArduPlane SITL (VTOL İHA)
-```bash
-cd ~/ardupilot/ArduPlane
-sim_vehicle.py -v ArduPlane \
-  --model JSON \
-  --add-param-file=$HOME/SITL_Models/Gazebo/config/alti_transition_quad.param \
-  --console --map -I 0 --sysid 1
-```
-### Her iki terminalde de : 
-param set ARMING_SKIPCHK 1
+## Repo yapısı
 
-### 4. VTOL İHA Kalkışı (MAVProxy Console)
-```
-mode GUIDED
-arm throttle force
-takeoff 50
-```
-
-### İnsan eklemek 
-```
-gz service -s /world/runway/create \
-  --reqtype gz.msgs.EntityFactory \
-  --reptype gz.msgs.Boolean \
-  --timeout 1000 \
-  --req 'sdf_filename: "https://fuel.gazebosim.org/1.0/OpenRobotics/models/Standing%20person" pose: {position: {x: 50, y: 50, z: 0}}'
-```
-### 5. Otonom Görev Scripti
-```bash
-python3 otonom_gorev.py
-```
-
-### Simülasyonu Kapatmak
-```bash
-pkill -9 -f gz && pkill -9 -f arduplane && pkill -9 -f arducopter
-```
-
----
-
-## 📁 Dosya Yapısı
-
-```
-├── otonom_gorev.py        # Ana otonom görev scripti
-├── koordinat_hesapla.py   # Piksel → GPS koordinat dönüşümü
-├── drone_gonder.py        # Drone kontrolü
-├── yolo_gazebo.py         # YOLO görüntü işleme
+```text
+.
+├── otonom_gorev.py
+│   └── İki araçlı görev senaryosu, grid tarama ve hedef tespiti
+├── koordinat_hesapla.py
+│   └── Kamera pikseli + irtifa + heading verisinden hedef GPS hesabı
+├── drone_gonder.py
+│   └── Multikopter hedef uçuşu ve RTL akışı
+├── yer_kontrol_arayuzu/
+│   └── C# Windows Forms tabanlı telemetri ve yer kontrol arayüzü
+├── requirements.txt
 └── README.md
 ```
 
----
+## Kullanılan teknolojiler
 
-## 🎯 Görev Akışı
+- ArduPilot SITL
+- Gazebo Harmonic
+- MAVSDK / MAVLink
+- Python
+- OpenCV
+- Ultralytics YOLOv8
+- LiDAR
+- C# / .NET Framework
+- Windows Forms
+- GMap.NET
 
-```
-1. VTOL İHA kalkış (50m)
-2. Gazebo kamerasından görüntü al
-3. YOLOv8 ile kişi tespit et
-4. TF03 LiDAR'dan irtifa al
-5. Piksel + GPS + LiDAR → Koordinat hesapla
-6. Drone'a koordinat gönder (MAVLink)
-7. Drone hedefe git (GUIDED mod)
-8. Hover + Yük bırak (Servo)
-9. Drone RTL
-10. VTOL taramaya devam
-```
+## Python bağımlılıkları
 
----
+Python paketleri:
 
-## 📐 Koordinat Hesaplama Algoritması
-
-```python
-# İHA'nın GPS konumu + LiDAR irtifası + Kamera FOV
-# → Kazazedenin piksel konumu → GPS koordinatı
-
-norm_x = (pixel_x - IMAGE_WIDTH/2) / (IMAGE_WIDTH/2)
-norm_y = (pixel_y - IMAGE_HEIGHT/2) / (IMAGE_HEIGHT/2)
-
-dx = altitude * tan(FOV_H/2) * norm_x
-dy = altitude * tan(FOV_V/2) * norm_y
-
-target_lat = iha_lat + degrees(dy_rotated / R)
-target_lon = iha_lon + degrees(dx_rotated / (R * cos(radians(iha_lat))))
+```bash
+pip install -r requirements.txt
 ```
 
----
+Gazebo Transport Python bağlayıcıları, ArduPilot SITL ve Gazebo Harmonic ayrıca kurulmalıdır.
 
-## ⚠️ Port Yapılandırması
+## Yer kontrol arayüzü
 
-| Araç | Instance | Gazebo Port | MAVProxy Port |
-|------|----------|-------------|---------------|
-| VTOL İHA | -I 0, sysid 1 | 9002 | 14550 |
-| Drone | -I 1, sysid 2 | 9012 | 14560 |
+`yer_kontrol_arayuzu` klasörü, VTOL ve multikopter telemetrisini izlemek amacıyla geliştirdiğimiz masaüstü arayüzünü içerir. Arayüzde harita üzerinde araç konumu, irtifa, hız, batarya, basınç, sıcaklık ve attitude verilerinin görüntülenmesine yönelik bileşenler bulunmaktadır.
 
----
+Visual Studio ile açmak için:
 
-## 📊 Kamera Parametreleri
+```text
+yer_kontrol_arayuzu/ihaarayuz.sln
+```
 
-| Parametre | Değer |
-|-----------|-------|
-| Lens | 8mm telephoto |
-| Çözünürlük | 1920x1080 |
-| FOV (Yatay) | 60° |
-| Shutter | Global (1/2500s) |
-| GSD @ 50m | 2.05 cm/px |
-| Motion Blur | 0.448 px |
+Bağımlılıklar `packages.config` üzerinden NuGet ile geri yüklenebilir.
 
----
+## Not
 
-## 👥 Teknofest 2026
-
-Bu proje Teknofest İHA yarışması kapsamında geliştirilmiştir.
+Bu depo bir yarışma/prototip geliştirme sürecindeki teknik çalışmaları içerir; üretim seviyesinde uçuş yazılımı olarak değerlendirilmemelidir. Fiziksel olarak doğrulanan çalışmalar ile simülasyon/prototip seviyesinde kalan çalışmalar yukarıdaki proje durumu bölümünde özellikle ayrılmıştır.
