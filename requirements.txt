@@ -1,0 +1,4 @@
+mavsdk
+numpy
+opencv-python
+ultralytics
